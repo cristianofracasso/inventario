@@ -26,7 +26,7 @@
                         <form action="{{ route('registrar.serial.produto') }}" method="POST" class="flex-grow-1 me-2">
                             @csrf
                             <div class="form-group mb-3">
-                                <label for="serial">Número de Série6</label>
+                                <label for="serial">Número de Série</label>
                                 <input type="text" 
                                        class="form-control" 
                                        id="serial" 
@@ -96,50 +96,38 @@
     }
 
     function confirmarExclusao(id) {
-    Swal.fire({
-        title: 'Tem certeza?',
-        text: "Você não poderá reverter isso!",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Sim, excluir!',
-        cancelButtonText: 'Cancelar'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            // Criar o formulário dinamicamente
-            const form = document.createElement('form');
-            form.method = 'POST';
-            
-            // Gerar a URL corretamente
-            const deleteUrl = @json(route('coleta.destroy', ['coleta' => ':id']));
-            form.action = deleteUrl.replace(':id', id); // Substitui ':id' pelo ID real
-            
-            // Adicionar o token CSRF
-            const csrfToken = document.createElement('input');
-            csrfToken.type = 'hidden';
-            csrfToken.name = '_token';
-            csrfToken.value = '{{ csrf_token() }}';
-            
-            // Adicionar o campo para método DELETE
-            const methodField = document.createElement('input');
-            methodField.type = 'hidden';
-            methodField.name = '_method';
-            methodField.value = 'DELETE';
-            
-            // Adicionar os campos ao formulário
-            form.appendChild(csrfToken);
-            form.appendChild(methodField);
-            document.body.appendChild(form);
-            
-            // Submeter o formulário
-            form.submit();
-        }
-    });
-}
-
-
-
+        Swal.fire({
+            title: 'Tem certeza?',
+            text: "Você não poderá reverter isso!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Sim, excluir!',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '/coleta/' + id;
+                
+                const csrfToken = document.createElement('input');
+                csrfToken.type = 'hidden';
+                csrfToken.name = '_token';
+                csrfToken.value = '{{ csrf_token() }}';
+                
+                const methodField = document.createElement('input');
+                methodField.type = 'hidden';
+                methodField.name = '_method';
+                methodField.value = 'DELETE';
+                
+                form.appendChild(csrfToken);
+                form.appendChild(methodField);
+                document.body.appendChild(form);
+                form.submit();
+            }
+        });
+    }
 
     // Mensagens de sucesso/erro
     @if(session('success'))
