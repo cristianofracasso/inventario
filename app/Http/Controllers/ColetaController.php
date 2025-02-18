@@ -177,7 +177,6 @@ public function __construct()
         ->where('contagem', $this->recount->first()->contagem)
         ->latest('created_at')
         ->first();
-    dd($ultimoRegistro);
     // Verifica se o registro que está tentando excluir é o último
     if ($coleta->id !== $ultimoRegistro->id) {
         return redirect()->back()->with('error', 'Apenas o último registro pode ser excluído.');
