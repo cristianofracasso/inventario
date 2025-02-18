@@ -258,34 +258,33 @@ session(['produto_custo' => $prod_cust]);
         return view('serial-produto', compact('seriais'));
     }
     public function destroy($id)
-{
-    // Encontra o registro que está tentando excluir
-    $coleta = Coleta::findOrFail($id);
-    
-    // Busca o último registro para o mesmo código_palet, grupo e contagem
-    $ultimoRegistro = Coleta::where('codigo_palet', $coleta->codigo_palet)
-        ->where('grupo', Auth::user()->grupo)
-        ->where('contagem', $this->recount->first()->contagem)
-        ->latest('created_at')
-        ->first();
-    
-    // Verifica se o registro que está tentando excluir é o último
-    if ($coleta->id !== $ultimoRegistro->id) {
-        if (request()->wantsJson()) {
-            return response()->json(['success' => false, 'message' => 'Apenas o último registro pode ser excluído.'], 403);
+    {
+        // Encontra o registro que está tentando excluir
+        $coleta = Coleta::findOrFail($id);
+        
+        // Busca o último registro para o mesmo código_palet, grupo e contagem
+        $ultimoRegistro = Coleta::where('codigo_palet', $coleta->codigo_palet)
+            ->where('grupo', Auth::user()->grupo)
+            ->where('contagem', $this->recount->first()->contagem)
+            ->latest('created_at')
+            ->first();
+        
+        // Verifica se o registro que está tentando excluir é o último
+        if ($coleta->id !== $ultimoRegistro->id) {
+            if (request()->wantsJson()) {
+                return response()->json(['success' => false, 'message' => 'Apenas o último registro pode ser excluído.'], 403);
+            }
+            return redirect()->back()->with('error', 'Apenas o último registro pode ser excluído.');
         }
-        return redirect()->back()->with('error', 'Apenas o último registro pode ser excluído.');
+        
+        // Se chegou aqui, é o último registro e pode ser excluído
+        $coleta->delete();
+        
+        if (request()->wantsJson()) {
+            return response()->json(['success' => true, 'message' => 'Registro excluído com sucesso!'], 200);
+        }
+        return redirect()->back()->with('success', 'Registro excluído com sucesso!');
     }
-    
-    // Se chegou aqui, é o último registro e pode ser excluído
-    $coleta->delete();
-    
-    if (request()->wantsJson()) {
-        return response()->json(['success' => true, 'message' => 'Registro excluído com sucesso!'], 200);
-    }
-    return redirect()->back()->with('success', 'Registro excluído com sucesso!');
-}
-
     public function registrarSerialProduto(Request $request)
     {
         // Validação dos dados do formulário

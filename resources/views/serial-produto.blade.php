@@ -96,48 +96,47 @@
     }
 
     function confirmarExclusao(id) {
-        Swal.fire({
-            title: 'Tem certeza?',
-            text: "Você não poderá reverter isso!",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Sim, excluir!',
-            cancelButtonText: 'Cancelar'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                // Usando fetch para enviar a requisição DELETE
-                fetch(`/coleta/${id}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Sucesso!',
-                            text: data.message,
-                            timer: 3000,
-                            showConfirmButton: false
-                        }).then(() => {
-                            window.location.reload(); // Recarrega a página após a exclusão
-                        });
-                    } else {
-                        Swal.fire('Erro!', data.message, 'error');
-                    }
-                })
-                .catch(error => {
-                    Swal.fire('Erro!', 'Ocorreu um erro ao tentar excluir o registro.', 'error');
-                });
-            }
-        });
-    }
+    Swal.fire({
+        title: 'Tem certeza?',
+        text: "Você não poderá reverter isso!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Sim, excluir!',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch(`/coleta/${id}`, {
+                method: 'DELETE', // Método DELETE
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Sucesso!',
+                        text: data.message,
+                        timer: 3000,
+                        showConfirmButton: false
+                    }).then(() => {
+                        window.location.reload(); // Recarrega a página após a exclusão
+                    });
+                } else {
+                    Swal.fire('Erro!', data.message, 'error');
+                }
+            })
+            .catch(error => {
+                Swal.fire('Erro!', 'Ocorreu um erro ao tentar excluir o registro.', 'error');
+            });
+        }
+    });
+}
 
     // Mensagens de sucesso/erro
     @if(session('success'))
