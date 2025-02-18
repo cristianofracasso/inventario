@@ -107,31 +107,38 @@
         cancelButtonText: 'Cancelar'
     }).then((result) => {
         if (result.isConfirmed) {
+            // Criar o formulário dinamicamente
             const form = document.createElement('form');
             form.method = 'POST';
             
-            // Usando uma variável JavaScript com a rota do Laravel
+            // Gerar a URL corretamente
             const deleteUrl = @json(route('coleta.destroy', ['coleta' => ':id']));
-            form.action = deleteUrl.replace(':id', id);
+            form.action = deleteUrl.replace(':id', id); // Substitui ':id' pelo ID real
             
+            // Adicionar o token CSRF
             const csrfToken = document.createElement('input');
             csrfToken.type = 'hidden';
             csrfToken.name = '_token';
             csrfToken.value = '{{ csrf_token() }}';
             
+            // Adicionar o campo para método DELETE
             const methodField = document.createElement('input');
             methodField.type = 'hidden';
             methodField.name = '_method';
             methodField.value = 'DELETE';
             
+            // Adicionar os campos ao formulário
             form.appendChild(csrfToken);
             form.appendChild(methodField);
             document.body.appendChild(form);
+            
+            // Submeter o formulário
             form.submit();
         }
     });
 }
-}
+
+
 
 
     // Mensagens de sucesso/erro
