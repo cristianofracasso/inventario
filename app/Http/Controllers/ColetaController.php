@@ -261,7 +261,7 @@ session(['produto_custo' => $prod_cust]);
     {
         // Encontra o registro que está tentando excluir
         $coleta = Coleta::findOrFail($id);
-        
+        dd($coleta);
         // Busca o último registro para o mesmo código_palet, grupo e contagem
         $ultimoRegistro = Coleta::where('codigo_palet', $coleta->codigo_palet)
             ->where('grupo', Auth::user()->grupo)
