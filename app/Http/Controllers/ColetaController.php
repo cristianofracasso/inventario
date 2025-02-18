@@ -166,7 +166,37 @@ public function __construct()
         return view('produto', compact('itens'));
     }
 
-
+    public function destroy($id)
+{
+    try {
+        DB::beginTransaction();
+        
+        $coleta = Coleta::findOrFail($id);
+        
+        // Verifica autorização
+        if ($coleta->grupo !== Auth::user()->grupo) {
+            throw new \Exception('Ação não autorizada.');
+        }
+        
+        $ultimoRegistro = Coleta::where('codigo_palet', $coleta->codigo_palet)
+            ->where('grupo', Auth::user()->grupo)
+            ->where('contagem', $this->recount->first()->contagem)
+            ->latest('created_at')
+            ->first();
+            
+        if ($coleta->id !== $ultimoRegistro->id) {
+            throw new \Exception('Apenas o último registro pode ser excluído.');
+        }
+        
+        $coleta->delete();
+        DB::commit();
+        
+        return redirect()->back()->with('success', 'Serial removido com sucesso.');
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return redirect()->back()->with('error', $e->getMessage());
+    }
+}
 
     // Validar código do produto
     public function validarProduto(Request $request)
@@ -257,34 +287,8 @@ session(['produto_custo' => $prod_cust]);
     
         return view('serial-produto', compact('seriais'));
     }
-    public function destroy($id)
-    {
-        // Encontra o registro que está tentando excluir
-        $coleta = Coleta::findOrFail($id);
-        dd($coleta);
-        // Busca o último registro para o mesmo código_palet, grupo e contagem
-        $ultimoRegistro = Coleta::where('codigo_palet', $coleta->codigo_palet)
-            ->where('grupo', Auth::user()->grupo)
-            ->where('contagem', $this->recount->first()->contagem)
-            ->latest('created_at')
-            ->first();
-        
-        // Verifica se o registro que está tentando excluir é o último
-        if ($coleta->id !== $ultimoRegistro->id) {
-            if (request()->wantsJson()) {
-                return response()->json(['success' => false, 'message' => 'Apenas o último registro pode ser excluído.'], 403);
-            }
-            return redirect()->back()->with('error', 'Apenas o último registro pode ser excluído.');
-        }
-        
-        // Se chegou aqui, é o último registro e pode ser excluído
-        $coleta->delete();
-        
-        if (request()->wantsJson()) {
-            return response()->json(['success' => true, 'message' => 'Registro excluído com sucesso!'], 200);
-        }
-        return redirect()->back()->with('success', 'Registro excluído com sucesso!');
-    }
+
+
     public function registrarSerialProduto(Request $request)
     {
         // Validação dos dados do formulário
@@ -329,7 +333,24 @@ session(['produto_custo' => $prod_cust]);
         return view('serial-produto', compact('seriais'))
             ->with('success', 'Serial registrado com sucesso!');
     }
-    
+
+    public function excluirUltimoSerial(Request $request)
+{
+    // Validação para garantir que o ID do serial foi enviado
+    $request->validate([
+        'serial_id' => 'required|exists:coletas,id',
+    ]);
+
+    // Recupera o serial pelo ID
+    $serial = Coleta::find($request->serial_id);
+
+    if ($serial) {
+        $serial->delete(); // Exclui o serial
+        return redirect()->back()->with('success', 'Último serial excluído com sucesso!');
+    }
+
+    return redirect()->back()->with('error', 'Nenhum serial encontrado para excluir.');
+}
 
     public function encerrarProduto()
 {

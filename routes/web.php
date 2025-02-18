@@ -32,7 +32,7 @@ Route::post('/encerrar-produto', [ColetaController::class, 'encerrarProduto'])->
     // Rotas relacionadas a serial
     Route::get('/serial', [ColetaController::class, 'exibirFormularioSerial'])->name('serial');
     Route::post('/registrar-serial', [ColetaController::class, 'registrarSerial'])->name('registrar.serial');
-    Route::delete('/coleta/{id}', [ColetaController::class, 'destroy'])->name('coleta.destroy');
+    Route::post('/excluir-ultimo-serial', [ColetaController::class, 'excluirUltimoSerial'])->name('excluir.ultimo.serial');
 
     // Outras rotas do ColetaController
     Route::get('/produtov', [ColetaController::class, 'exibirFormularioroduto'])->name('produtov');

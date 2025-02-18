@@ -58,14 +58,16 @@
                                 <tr>
                                     <td>{{ $serial->serial }}</td>
                                     <td>
-                                        @if($loop->first)
-                                            <button type="button" 
-                                                    class="btn btn-danger"
-                                                    onclick="confirmarExclusao({{ $serial->id }})">
-                                                Excluir
-                                            </button>
-                                        @endif
-                                    </td>
+               @if ($loop->last)
+    <form action="{{ route('excluir.ultimo.serial') }}" method="POST" class="d-inline" onsubmit="return confirmarExclusao(this.querySelector('button'))">
+        @csrf
+        <input type="hidden" name="serial_id" value="{{ $serial->id }}">
+        <button type="submit" class="btn btn-danger btn-sm" data-serial="{{ $serial->serial }}">
+            Excluir Último
+        </button>
+    </form>
+@endif
+                </td>
                                 </tr>
                                 @endforeach
                             </tbody>    
@@ -95,73 +97,15 @@
         });
     }
 
-    function confirmarExclusao(id) {
-    Swal.fire({
-        title: 'Tem certeza?',
-        text: "Você não poderá reverter isso!",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Sim, excluir!',
-        cancelButtonText: 'Cancelar'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            fetch(`/coleta/${id}`, {
-                method: 'DELETE', // Método DELETE
-                headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Sucesso!',
-                        text: data.message,
-                        timer: 3000,
-                        showConfirmButton: false
-                    }).then(() => {
-                        window.location.reload(); // Recarrega a página após a exclusão
-                    });
-                } else {
-                    Swal.fire('Erro!', data.message, 'error');
-                }
-            })
-            .catch(error => {
-                Swal.fire('Erro!', 'Ocorreu um erro ao tentar excluir o registro.', 'error');
-            });
-        }
-    });
-}
-
-    // Mensagens de sucesso/erro
-    @if(session('success'))
-        Swal.fire({
-            icon: 'success',
-            title: 'Sucesso!',
-            text: "{{ session('success') }}",
-            timer: 3000,
-            showConfirmButton: false
-        });
-    @endif
-
-    @if(session('error'))
-        Swal.fire({
-            icon: 'error',
-            title: 'Erro!',
-            text: "{{ session('error') }}",
-            timer: 3000,
-            showConfirmButton: false
-        });
-    @endif
-
     // Auto-focus no input de serial
     document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('serial').focus();
     });
+
+    
+    function confirmarExclusao(button) {
+        const serial = button.getAttribute('data-serial');
+        return confirm(`Tem certeza que deseja excluir o serial "${serial}"?`);
+    }
 </script>
 @endsection
