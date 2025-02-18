@@ -107,24 +107,34 @@
             cancelButtonText: 'Cancelar'
         }).then((result) => {
             if (result.isConfirmed) {
-                const form = document.createElement('form');
-                form.method = 'POST';
-                form.action = '/coleta/' + id;
-                
-                const csrfToken = document.createElement('input');
-                csrfToken.type = 'hidden';
-                csrfToken.name = '_token';
-                csrfToken.value = '{{ csrf_token() }}';
-                
-                const methodField = document.createElement('input');
-                methodField.type = 'hidden';
-                methodField.name = '_method';
-                methodField.value = 'DELETE';
-                
-                form.appendChild(csrfToken);
-                form.appendChild(methodField);
-                document.body.appendChild(form);
-                form.submit();
+                // Usando fetch para enviar a requisição DELETE
+                fetch(`/coleta/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Sucesso!',
+                            text: data.message,
+                            timer: 3000,
+                            showConfirmButton: false
+                        }).then(() => {
+                            window.location.reload(); // Recarrega a página após a exclusão
+                        });
+                    } else {
+                        Swal.fire('Erro!', data.message, 'error');
+                    }
+                })
+                .catch(error => {
+                    Swal.fire('Erro!', 'Ocorreu um erro ao tentar excluir o registro.', 'error');
+                });
             }
         });
     }
