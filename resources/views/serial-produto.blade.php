@@ -111,7 +111,7 @@
             form.method = 'POST';
             
             // Usando uma variável JavaScript com a rota do Laravel
-            const deleteUrl = @json(route('coleta.destroy', ['coleta' => ':id']));
+            const deleteUrl = @json(route('destroy', ['coleta' => ':id']));
             form.action = deleteUrl.replace(':id', id);
             
             const csrfToken = document.createElement('input');
