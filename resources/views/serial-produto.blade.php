@@ -8,7 +8,7 @@
         <div class="col-md-8">
             <div class="card">
                 <div class="card-header">
-                    Coleta de Seriais - Área: {{ session('codigo_palet') }} - Produto: {{ session('codigo_produto') }}
+                    Coleta de Seriais - 5Área: {{ session('codigo_palet') }} - Produto: {{ session('codigo_produto') }}
                 </div>
 
                 <div class="card-body">
