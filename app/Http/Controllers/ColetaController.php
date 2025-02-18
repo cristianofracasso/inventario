@@ -226,11 +226,13 @@ public function __construct()
        $produtoExistente = Produto::where('codigo_barras', session('codigo_produto'))
        ->first();
 
-$cod_prod = $produtoExistente->id;
 
         if (!$produtoExistente) {
             return redirect()->route('produto')->withErrors(['codigo_produto' => 'Código do produto não encontrado.']);
         }
+
+        $cod_prod = $produtoExistente->id;
+
 
         $prod_cust = Custos::where('produto_id',$cod_prod = $produtoExistente->id)
         ->where('empresa_id', 1)
@@ -279,46 +281,50 @@ session(['produto_custo' => $prod_cust]);
 
 
     public function registrarSerialProduto(Request $request)
-{
-    $request->validate([
-        'serial' => 'required|string',
-    ], [
-        'serial.required' => 'O serial do produto é obrigatório.',
-    ]);
-
-    // Verifica se o serial já foi coletado para o mesmo produto
-    $serialColetado = Coleta::where('sku', session('codigo_produto'))
-        ->where('serial', $request->serial)
-        ->where('contagem', $this->recount->first()->contagem)
-        ->where('grupo', Auth::user()->grupo)
-        ->first();
-
-    if ($serialColetado) {
-        return back()->withErrors(['serial' => "Este serial já foi coletado anteriormente na Área $serialColetado->codigo_palet."]);
+    {
+        // Validação dos dados do formulário
+        $request->validate([
+            'serial' => 'required|string',
+        ], [
+            'serial.required' => 'O serial do produto é obrigatório.',
+        ]);
+    
+        // Verifica se o serial já foi coletado para o mesmo produto
+        $serialColetado = Coleta::where('sku', session('codigo_produto'))
+            ->where('serial', $request->serial)
+            ->where('contagem', $this->recount->first()->contagem)
+            ->where('grupo', Auth::user()->grupo)
+            ->first();
+    
+        // Se o serial já foi coletado, retorna com erro
+        if ($serialColetado) {
+            return redirect()->route('produtoserial')->withErrors(['serial' => "Este serial já foi coletado anteriormente na Área $serialColetado->codigo_palet."]);
+        }
+    
+        // Caso contrário, registra o serial
+        Coleta::create([
+            'codigo_palet' => session('codigo_palet'),
+            'sku' => session('codigo_produto'),
+            'serial' => $request->serial,
+            'custo' => session('produto_custo'),
+            'status' => 'em_andamento',
+            'contagem' => $this->recount->first()->contagem,
+            'grupo' => Auth::user()->grupo,
+        ]);
+    
+        // Recupera todos os seriais registrados para o produto
+        $seriais = Coleta::where('codigo_palet', session('codigo_palet'))
+            ->where('sku', session('codigo_produto'))
+            ->where('contagem', $this->recount->first()->contagem)
+            ->where('grupo', Auth::user()->grupo)
+            ->orderBy('created_at', 'desc')
+            ->get();
+    
+        // Retorna à página com os seriais e uma mensagem de sucesso
+        return view('serial-produto', compact('seriais'))
+            ->with('success', 'Serial registrado com sucesso!');
     }
-
-    // Registra o serial
-    Coleta::create([
-        'codigo_palet' => session('codigo_palet'),
-        'sku' => session('codigo_produto'),
-        'serial' => $request->serial,
-        'custo' => session('produto_custo'),
-        'status' => 'em_andamento',
-        'contagem' => $this->recount->first()->contagem,
-        'grupo' => Auth::user()->grupo,
-    ]);
-
-    // Recupera os seriais registrados para o produto
-    $seriais = Coleta::where('codigo_palet', session('codigo_palet'))
-        ->where('sku', session('codigo_produto'))
-        ->where('contagem', $this->recount->first()->contagem)
-        ->where('grupo', Auth::user()->grupo)
-        ->orderBy('created_at', 'desc')
-        ->get();
-
-    return view('serial-produto', compact('seriais'))->with('success', 'Serial registrado com sucesso!');
-}
-
+    
 
     public function encerrarProduto()
 {
