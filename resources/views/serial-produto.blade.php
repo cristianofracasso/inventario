@@ -26,7 +26,7 @@
                         <form action="{{ route('registrar.serial.produto') }}" method="POST" class="flex-grow-1 me-2">
                             @csrf
                             <div class="form-group mb-3">
-                                <label for="serial">Número de Série63</label>
+                                <label for="serial">Número de Série6</label>
                                 <input type="text" 
                                        class="form-control" 
                                        id="serial" 
@@ -107,34 +107,30 @@
         cancelButtonText: 'Cancelar'
     }).then((result) => {
         if (result.isConfirmed) {
-            // Cria o formulário dinamicamente
             const form = document.createElement('form');
             form.method = 'POST';
-
-            // Define a URL de ação com o ID
-            form.action = "{{ route('coleta.destroy', ':id') }}".replace(':id', id);
             
-            // Adiciona o CSRF Token
+            // Usando uma variável JavaScript com a rota do Laravel
+            const deleteUrl = @json(route('coleta.destroy', ['coleta' => ':id']));
+            form.action = deleteUrl.replace(':id', id);
+            
             const csrfToken = document.createElement('input');
             csrfToken.type = 'hidden';
             csrfToken.name = '_token';
             csrfToken.value = '{{ csrf_token() }}';
             
-            // Adiciona o campo para o método DELETE
             const methodField = document.createElement('input');
             methodField.type = 'hidden';
             methodField.name = '_method';
             methodField.value = 'DELETE';
             
-            // Anexa os campos ao formulário
             form.appendChild(csrfToken);
             form.appendChild(methodField);
-            
-            // Anexa o formulário ao body e submete
             document.body.appendChild(form);
             form.submit();
         }
     });
+}
 }
 
 
