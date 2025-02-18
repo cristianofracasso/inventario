@@ -166,38 +166,7 @@ public function __construct()
         return view('produto', compact('itens'));
     }
 
-    public function destroy($id)
-{
-    try {
-        DB::beginTransaction();
-        
-        $coleta = Coleta::findOrFail($id);
-        
-        // Verifica autorização
-        if ($coleta->grupo !== Auth::user()->grupo) {
-            throw new \Exception('Ação não autorizada.');
-        }
-        
-        $ultimoRegistro = Coleta::where('codigo_palet', $coleta->codigo_palet)
-            ->where('grupo', Auth::user()->grupo)
-            ->where('contagem', $this->recount->first()->contagem)
-            ->latest('created_at')
-            ->first();
-            
-        if ($coleta->id !== $ultimoRegistro->id) {
-            throw new \Exception('Apenas o último registro pode ser excluído.');
-        }
-        
-        $coleta->delete();
-        DB::commit();
-        
-        return redirect()->back()->with('success', 'Serial removido com sucesso.');
-    } catch (\Exception $e) {
-        DB::rollBack();
-        return redirect()->back()->with('error', $e->getMessage());
-    }
-}
-
+    
     // Validar código do produto
     public function validarProduto(Request $request)
     {
@@ -328,29 +297,29 @@ session(['produto_custo' => $prod_cust]);
             ->where('grupo', Auth::user()->grupo)
             ->orderBy('created_at', 'desc')
             ->get();
-    
+    dd($seriais );
         // Retorna à página com os seriais e uma mensagem de sucesso
         return view('serial-produto', compact('seriais'))
             ->with('success', 'Serial registrado com sucesso!');
     }
 
     public function excluirUltimoSerial(Request $request)
-{
-    // Validação para garantir que o ID do serial foi enviado
-    $request->validate([
-        'serial_id' => 'required|exists:coletas,id',
-    ]);
-
-    // Recupera o serial pelo ID
-    $serial = Coleta::find($request->serial_id);
-
-    if ($serial) {
-        $serial->delete(); // Exclui o serial
-        return redirect()->back()->with('success', 'Último serial excluído com sucesso!');
+    {
+        // Validação para garantir que o ID do serial foi enviado
+        $request->validate([
+            'serial_id' => 'required|exists:coletas,id',
+        ]);
+    
+        // Recupera o serial pelo ID
+        $serial = Coleta::find($request->serial_id);
+    
+        if ($serial) {
+            $serial->delete(); // Exclui o serial
+            return redirect()->route('produtoserial')->with('success', 'Último serial excluído com sucesso!');
+        }
+    
+        return redirect()->route('produtoserial')->with('error', 'Nenhum serial encontrado para excluir.');
     }
-
-    return redirect()->back()->with('error', 'Nenhum serial encontrado para excluir.');
-}
 
     public function encerrarProduto()
 {
