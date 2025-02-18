@@ -26,7 +26,7 @@
                         <form action="{{ route('registrar.serial.produto') }}" method="POST" class="flex-grow-1 me-2">
                             @csrf
                             <div class="form-group mb-3">
-                                <label for="serial">Número de Série</label>
+                                <label for="serial">Número de Série3333</label>
                                 <input type="text" 
                                        class="form-control" 
                                        id="serial" 
@@ -109,7 +109,7 @@
             if (result.isConfirmed) {
                 const form = document.createElement('form');
                 form.method = 'POST';
-                form.action = '/coleta/' + id;
+            form.action = "{{ route('coleta.destroy', '') }}" + '/' + id;  // Usando helper route
                 
                 const csrfToken = document.createElement('input');
                 csrfToken.type = 'hidden';
