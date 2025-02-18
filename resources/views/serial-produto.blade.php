@@ -26,7 +26,7 @@
                         <form action="{{ route('registrar.serial.produto') }}" method="POST" class="flex-grow-1 me-2">
                             @csrf
                             <div class="form-group mb-3">
-                                <label for="serial">Número de Série3333</label>
+                                <label for="serial">Número de Série63</label>
                                 <input type="text" 
                                        class="form-control" 
                                        id="serial" 
@@ -96,38 +96,47 @@
     }
 
     function confirmarExclusao(id) {
-        Swal.fire({
-            title: 'Tem certeza?',
-            text: "Você não poderá reverter isso!",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Sim, excluir!',
-            cancelButtonText: 'Cancelar'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                const form = document.createElement('form');
-                form.method = 'POST';
-            form.action = "{{ route('coleta.destroy', '') }}" + '/' + id;  // Usando helper route
-                
-                const csrfToken = document.createElement('input');
-                csrfToken.type = 'hidden';
-                csrfToken.name = '_token';
-                csrfToken.value = '{{ csrf_token() }}';
-                
-                const methodField = document.createElement('input');
-                methodField.type = 'hidden';
-                methodField.name = '_method';
-                methodField.value = 'DELETE';
-                
-                form.appendChild(csrfToken);
-                form.appendChild(methodField);
-                document.body.appendChild(form);
-                form.submit();
-            }
-        });
-    }
+    Swal.fire({
+        title: 'Tem certeza?',
+        text: "Você não poderá reverter isso!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Sim, excluir!',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Cria o formulário dinamicamente
+            const form = document.createElement('form');
+            form.method = 'POST';
+
+            // Define a URL de ação com o ID
+            form.action = "{{ route('coleta.destroy', ':id') }}".replace(':id', id);
+            
+            // Adiciona o CSRF Token
+            const csrfToken = document.createElement('input');
+            csrfToken.type = 'hidden';
+            csrfToken.name = '_token';
+            csrfToken.value = '{{ csrf_token() }}';
+            
+            // Adiciona o campo para o método DELETE
+            const methodField = document.createElement('input');
+            methodField.type = 'hidden';
+            methodField.name = '_method';
+            methodField.value = 'DELETE';
+            
+            // Anexa os campos ao formulário
+            form.appendChild(csrfToken);
+            form.appendChild(methodField);
+            
+            // Anexa o formulário ao body e submete
+            document.body.appendChild(form);
+            form.submit();
+        }
+    });
+}
+
 
     // Mensagens de sucesso/erro
     @if(session('success'))
