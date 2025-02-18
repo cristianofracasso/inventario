@@ -297,7 +297,7 @@ session(['produto_custo' => $prod_cust]);
     
         // Se o serial já foi coletado, retorna com erro
         if ($serialColetado) {
-            return redirect()->route('produtoserial')->withErrors(['serial' => "Este serial já foi coletado anteriormente na Área $serialColetado->codigo_palet."]);
+            return redirect()->route('registrarSerial')->withErrors(['serial' => "Este serial já foi coletado anteriormente na Área $serialColetado->codigo_palet."]);
         }
     
         // Caso contrário, registra o serial
