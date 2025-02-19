@@ -10,18 +10,8 @@
                 <div class="card-header">Leitura do Produto - Área: {{ session('codigo_palet') }}</div>
 
                 <div class="card-body">
-                    @if ($errors->any())
-                        <div class="alert alert-danger">
-                            <ul class="mb-0">
-                                @foreach ($errors->all() as $error)
-                                    <li>{{ $error }}</li>
-                                @endforeach
-                            </ul>
-                        </div>
-                    @endif
-
                     <div class="d-flex justify-content-between align-items-center mb-4">
-                        <form action="{{ route('validar.produto') }}" method="POST" class="flex-grow-1 me-2">
+                        <form action="{{ route('validar.produto') }}" method="POST" class="flex-grow-1 me-2" id="formProduto">
                             @csrf
                             <div class="form-group mb-3">
                                 <label for="codigo_produto">Código do Produto</label>
@@ -42,7 +32,6 @@
                         </form>
                     </div>
 
-                    <!-- Lista de produtos coletados no palet atual -->
                     <div class="mt-4">
                         <h5>Produtos Coletados nesta Área</h5>
                         <table class="table">
@@ -60,11 +49,16 @@
                                     <td>{{ $coleta->serial }}</td>
                                     <td>
                                         @if($loop->first)
-                                            <button type="button" 
-                                                    class="btn btn-danger"
-                                                    onclick="confirmarExclusao({{ $coleta->id }})">
-                                                Excluir
-                                            </button>
+                                            <form action="{{ route('excluir.produto', $coleta->id) }}" method="POST" class="d-inline">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="button" 
+                                                        class="btn btn-danger" 
+                                                        onclick="confirmarExclusao(this)" 
+                                                        data-sku="{{ $coleta->sku }}">
+                                                    Excluir Produto
+                                                </button>
+                                            </form>
                                         @endif
                                     </td>
                                 </tr>
@@ -81,14 +75,16 @@
 <script>
     function confirmarFinalizacao() {
         Swal.fire({
-            title: 'Tem certeza?',
-            text: "Você deseja finalizar a coleta?",
-            icon: 'warning',
+            title: 'Finalizar Coleta',
+            text: "Tem certeza que deseja finalizar a coleta desta área?",
+            icon: 'question',
             showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
+            confirmButtonColor: '#28a745',
+            cancelButtonColor: '#dc3545',
             confirmButtonText: 'Sim, finalizar!',
-            cancelButtonText: 'Cancelar'
+            cancelButtonText: 'Cancelar',
+            allowOutsideClick: false,
+            allowEscapeKey: false
         }).then((result) => {
             if (result.isConfirmed) {
                 document.getElementById('formFinalizarColeta').submit();
@@ -96,64 +92,81 @@
         });
     }
 
-    function confirmarExclusao(id) {
+    function confirmarExclusao(button) {
+        const sku = button.getAttribute('data-sku');
+        
         Swal.fire({
-            title: 'Tem certeza?',
-            text: "Você não poderá reverter isso!",
+            title: 'Confirmar exclusão',
+            text: `Tem certeza que deseja excluir o produto "${sku}"?`,
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
             confirmButtonText: 'Sim, excluir!',
-            cancelButtonText: 'Cancelar'
+            cancelButtonText: 'Cancelar',
+            allowOutsideClick: false,
+            allowEscapeKey: false
         }).then((result) => {
             if (result.isConfirmed) {
-                const form = document.createElement('form');
-                form.method = 'POST';
-                form.action = '/coleta/' + id;
-                
-                const csrfToken = document.createElement('input');
-                csrfToken.type = 'hidden';
-                csrfToken.name = '_token';
-                csrfToken.value = '{{ csrf_token() }}';
-                
-                const methodField = document.createElement('input');
-                methodField.type = 'hidden';
-                methodField.name = '_method';
-                methodField.value = 'DELETE';
-                
-                form.appendChild(csrfToken);
-                form.appendChild(methodField);
-                document.body.appendChild(form);
-                form.submit();
+                button.closest('form').submit();
             }
         });
     }
 
     // Mensagens de sucesso/erro
-    @if(session('success'))
+     @if(session('success'))
         Swal.fire({
             icon: 'success',
             title: 'Sucesso!',
             text: "{{ session('success') }}",
-            timer: 800,
-            showConfirmButton: false
+            timer: 1000,
+            showConfirmButton: false,
+            timerProgressBar: true,
+            didOpen: () => {
+                setTimeout(() => {
+                    document.getElementById('codigo_produto').focus();
+                }, 1600);
+            }
         });
     @endif
 
-    @if(session('error'))
+    @if(session('error') || $errors->any())
         Swal.fire({
             icon: 'error',
-            title: 'Erro!',
-            text: "{{ session('error') }}",
-            timer: 3000,
-            showConfirmButton: false
+            title: 'Atenção!',
+            text: "{{ session('error') ?? $errors->first() }}",
+            showConfirmButton: true,
+            confirmButtonColor: '#3085d6',
+            confirmButtonText: 'OK',
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.getConfirmButton().addEventListener('click', () => {
+                    document.getElementById('codigo_produto').focus();
+                });
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                document.getElementById('codigo_produto').focus();
+            }
         });
     @endif
 
-    // Auto-focus no input de código do produto
+    // Remover alertas padrão do Laravel
     document.addEventListener('DOMContentLoaded', function() {
+        const alertDiv = document.querySelector('.alert');
+        if (alertDiv) {
+            alertDiv.style.display = 'none';
+        }
         document.getElementById('codigo_produto').focus();
     });
+
+    // Auto-submit ao pressionar Enter
+    document.getElementById('codigo_produto').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            document.getElementById('formProduto').submit();
+        }
+    });
+    
 </script>
 @endsection

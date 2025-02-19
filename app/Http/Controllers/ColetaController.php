@@ -105,7 +105,7 @@ public function __construct()
                 ->where('grupo', Auth::user()->grupo);
             })->get()
         ];
-
+//dd( $status);
     
         return view('leitura-palet', compact('status'));
 
