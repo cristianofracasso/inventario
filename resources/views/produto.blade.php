@@ -136,7 +136,7 @@
             icon: 'success',
             title: 'Sucesso!',
             text: "{{ session('success') }}",
-            timer: 1000,
+            timer: 800,
             showConfirmButton: false
         });
     @endif
