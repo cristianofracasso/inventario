@@ -58,12 +58,12 @@
                                 <tr>
                                     <td>{{ $serial->serial }}</td>
                                     <td>
-               @if ($loop->last)
+               @if ($loop->first)
     <form action="{{ route('excluir.ultimo.serial') }}" method="POST" class="d-inline" onsubmit="return confirmarExclusao(this.querySelector('button'))">
         @csrf
         <input type="hidden" name="serial_id" value="{{ $serial->id }}">
         <button type="submit" class="btn btn-danger btn-sm" data-serial="{{ $serial->serial }}">
-            Excluir Último
+            Excluir Serial
         </button>
     </form>
 @endif

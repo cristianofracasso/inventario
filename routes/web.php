@@ -27,7 +27,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/produto', [ColetaController::class, 'exibirFormularioProduto'])->name('produto');
     Route::post('/validar-produto', [ColetaController::class, 'validarProduto'])->name('validar.produto');
     Route::post('/registrar-serial-produto', [ColetaController::class, 'registrarSerialProduto'])->name('registrar.serial.produto');
-
+    Route::delete('/coleta/{id}', [ColetaController::class, 'excluirProduto'])->name('excluir.produto');
 Route::post('/encerrar-produto', [ColetaController::class, 'encerrarProduto'])->name('encerrar.produto');
 
     // Rotas relacionadas a serial

@@ -297,7 +297,7 @@ session(['produto_custo' => $prod_cust]);
             ->where('grupo', Auth::user()->grupo)
             ->orderBy('created_at', 'desc')
             ->get();
-    dd($seriais );
+
         // Retorna à página com os seriais e uma mensagem de sucesso
         return view('serial-produto', compact('seriais'))
             ->with('success', 'Serial registrado com sucesso!');
@@ -320,6 +320,32 @@ session(['produto_custo' => $prod_cust]);
     
         return redirect()->route('produtoserial')->with('error', 'Nenhum serial encontrado para excluir.');
     }
+
+    public function excluirProduto($id)
+{
+    try {
+        DB::beginTransaction();
+
+        // Recupera o produto pelo ID
+        $produto = Coleta::findOrFail($id);
+
+        // Verifica se o produto pertence ao grupo do usuário
+        if ($produto->grupo !== Auth::user()->grupo) {
+            throw new \Exception('Ação não autorizada.');
+        }
+
+        // Exclui o produto
+        $produto->delete();
+
+        DB::commit();
+
+        // Redireciona de volta para a página de produtos coletados na área
+        return redirect()->route('produto')->with('success', 'Produto excluído com sucesso!');
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return redirect()->route('produto')->with('error', $e->getMessage());
+    }
+}
 
     public function encerrarProduto()
 {
