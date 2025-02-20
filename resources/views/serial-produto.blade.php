@@ -95,36 +95,53 @@
         });
     }
 
-    // Auto-focus no input de serial
-    document.addEventListener('DOMContentLoaded', function() {
-        document.getElementById('serial').focus();
-    });
+    function confirmarExclusao(button) {
+        const serial = button.getAttribute('data-serial');
+        
+        Swal.fire({
+            title: 'Confirmar exclusão',
+            text: `Tem certeza que deseja excluir o serial "${serial}"?`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Sim, excluir!',
+            cancelButtonText: 'Cancelar',
+            allowOutsideClick: false,
+            allowEscapeKey: false
+        }).then((result) => {
+            if (result.isConfirmed) {
+                button.closest('form').submit();
+            }
+        });
+    }
 
-    
-   function confirmarExclusao(button) {
-    const serial = button.getAttribute('data-serial');
-    
-    Swal.fire({
-        title: 'Confirmar exclusão',
-        text: `Tem certeza que deseja excluir o serial "${serial}"?`,
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#3085d6',
-        confirmButtonText: 'Sim, excluir!',
-        cancelButtonText: 'Cancelar',
-        allowOutsideClick: false,
-        allowEscapeKey: false
-    }).then((result) => {
-        if (result.isConfirmed) {
-            // Encontra o formulário pai do botão e faz o submit
-            button.closest('form').submit();
-        }
-    });
-}
+    // Função para desabilitar completamente o input
+    function disableInput(input) {
+        input.disabled = true;  // Desabilita completamente o input
+        input.style.backgroundColor = '#e9ecef';
+        
+        // Previne qualquer evento de teclado
+        input.addEventListener('keydown', function(e) {
+            e.preventDefault();
+            return false;
+        }, true);
+        
+        // Previne colagem de texto
+        input.addEventListener('paste', function(e) {
+            e.preventDefault();
+            return false;
+        }, true);
+        
+        // Previne eventos de input
+        input.addEventListener('input', function(e) {
+            e.preventDefault();
+            return false;
+        }, true);
+    }
 
-// Mensagens de sucesso/erro
-     @if(session('success'))
+    // Mensagens de sucesso/erro
+    @if(session('success'))
         Swal.fire({
             icon: 'success',
             title: 'Sucesso!',
@@ -134,7 +151,7 @@
             timerProgressBar: true,
             didOpen: () => {
                 setTimeout(() => {
-                    document.getElementById('codigo_produto').focus();
+                    document.getElementById('serial').focus();
                 }, 1600);
             }
         });
@@ -151,30 +168,40 @@
             allowOutsideClick: false,
             didOpen: () => {
                 Swal.getConfirmButton().addEventListener('click', () => {
-                    document.getElementById('codigo_produto').focus();
+                    document.getElementById('serial').focus();
                 });
             }
         }).then((result) => {
             if (result.isConfirmed) {
-                document.getElementById('codigo_produto').focus();
+                document.getElementById('serial').focus();
             }
         });
     @endif
 
-    // Remover alertas padrão do Laravel
+    // Configuração inicial ao carregar a página
     document.addEventListener('DOMContentLoaded', function() {
         const alertDiv = document.querySelector('.alert');
         if (alertDiv) {
             alertDiv.style.display = 'none';
         }
-        document.getElementById('codigo_produto').focus();
+        document.getElementById('serial').focus();
     });
 
-    // Auto-submit ao pressionar Enter
-    document.getElementById('codigo_produto').addEventListener('keypress', function(e) {
+    // Configurar o formulário de serial
+    const serialForm = document.querySelector('form[action*="registrar.serial.produto"]');
+    const serialInput = document.getElementById('serial');
+
+    // Auto-submit ao pressionar Enter e prevenir input após submit
+    serialInput.addEventListener('keypress', function(e) {
         if (e.key === 'Enter') {
             e.preventDefault();
-            document.getElementById('formProduto').submit();
+            const form = this.form;
+            // Primeiro submete o formulário
+            form.submit();
+            // Depois desabilita o input
+            setTimeout(() => {
+                disableInput(this);
+            }, 50);
         }
     });
 </script>

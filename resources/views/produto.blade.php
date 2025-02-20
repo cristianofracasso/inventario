@@ -112,7 +112,7 @@
     }
 
     // Mensagens de sucesso/erro
-     @if(session('success'))
+    @if(session('success'))
         Swal.fire({
             icon: 'success',
             title: 'Sucesso!',
@@ -158,13 +158,48 @@
         document.getElementById('codigo_produto').focus();
     });
 
+    // Função para desabilitar completamente o input
+    function disableInput(input) {
+        input.disabled = true;  // Desabilita completamente o input
+        input.style.backgroundColor = '#e9ecef';
+        
+        // Previne qualquer evento de teclado
+        input.addEventListener('keydown', function(e) {
+            e.preventDefault();
+            return false;
+        }, true);
+        
+        // Previne colagem de texto
+        input.addEventListener('paste', function(e) {
+            e.preventDefault();
+            return false;
+        }, true);
+        
+        // Previne eventos de input
+        input.addEventListener('input', function(e) {
+            e.preventDefault();
+            return false;
+        }, true);
+    }
+
+    // Configurar o formulário de produto
+    const formProduto = document.getElementById('formProduto');
+    const inputProduto = document.getElementById('codigo_produto');
+
+    // Removi o evento submit do formulário que estava desabilitando muito cedo
+
     // Auto-submit ao pressionar Enter
-    document.getElementById('codigo_produto').addEventListener('keypress', function(e) {
+    inputProduto.addEventListener('keypress', function(e) {
         if (e.key === 'Enter') {
             e.preventDefault();
-            document.getElementById('formProduto').submit();
+            const form = this.form;
+            // Primeiro submete o formulário
+            form.submit();
+            // Depois desabilita o input
+            setTimeout(() => {
+                disableInput(this);
+            }, 50);
         }
     });
-    
 </script>
 @endsection
