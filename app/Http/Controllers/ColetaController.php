@@ -181,13 +181,14 @@ public function __construct()
             'codigo_produto.required' => 'O código do produto é obrigatório.',
         ]);
 
-        $codAtivo = Produto::where('codigo_barras', session('codigo_produto')
-        ->where('ativo', 1))
-        ->first();
+        $codAtivo = Produto::where('codigo_barras', $request->codigo_produto)
+                            ->where('ativo', 1)
+                            ->first();
 
         // Armazena o código do produto na sessão
-        session(['codigo_produto' => $codAtivo]);
+        session(['codigo_produto' => $codAtivo->codigo_barras]);
 
+        
         // Redireciona para a tela de serial
         return redirect()->route('produtov');
     }
@@ -207,8 +208,8 @@ public function __construct()
     public function exibirFormularioroduto()
     {
        // Verifica se o produto existe
-       $produtoExistente = Produto::where('codigo_barras', session('codigo_produto')
-                                    ->where('ativo', 1))
+       $produtoExistente = Produto::where('codigo_barras', session('codigo_produto'))
+                                    ->where('ativo', 1)
                                     ->first();
 
 
@@ -236,9 +237,9 @@ session(['produto_custo' => $prod_cust]);
         
     public function exibirserial() {
         // Verifica se o produto tem serial
-        $controlaserie = Produto::where('codigo_barras', session('codigo_produto')
-                                    ->where('ativo', 1))
-                                    ->first();
+        $controlaserie = Produto::where('codigo_barras', session('codigo_produto'))
+                                        ->where('ativo', 1)
+                                        ->first();
 
             if ($controlaserie->controla_numero_serie !== '1') {
             Coleta::create([

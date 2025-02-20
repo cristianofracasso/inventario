@@ -13,6 +13,7 @@ class Produto extends Model
         'id',
         'codigo_barras',
         'controla_numero_serie',
+        'ativo'
         
         
     ];
