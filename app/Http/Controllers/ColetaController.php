@@ -181,10 +181,12 @@ public function __construct()
             'codigo_produto.required' => 'O código do produto é obrigatório.',
         ]);
 
-        
+        $codAtivo = Produto::where('codigo_barras', session('codigo_produto')
+        ->where('ativo', 1))
+        ->first();
 
         // Armazena o código do produto na sessão
-        session(['codigo_produto' => $request->codigo_produto]);
+        session(['codigo_produto' => $codAtivo]);
 
         // Redireciona para a tela de serial
         return redirect()->route('produtov');
@@ -205,8 +207,9 @@ public function __construct()
     public function exibirFormularioroduto()
     {
        // Verifica se o produto existe
-       $produtoExistente = Produto::where('codigo_barras', session('codigo_produto'))
-       ->first();
+       $produtoExistente = Produto::where('codigo_barras', session('codigo_produto')
+                                    ->where('ativo', 1))
+                                    ->first();
 
 
         if (!$produtoExistente) {
@@ -233,10 +236,11 @@ session(['produto_custo' => $prod_cust]);
         
     public function exibirserial() {
         // Verifica se o produto tem serial
-        $controlaserie = Produto::where('codigo_barras', session('codigo_produto'))
-            ->first();
-    
-        if ($controlaserie->controla_numero_serie !== '1') {
+        $controlaserie = Produto::where('codigo_barras', session('codigo_produto')
+                                    ->where('ativo', 1))
+                                    ->first();
+
+            if ($controlaserie->controla_numero_serie !== '1') {
             Coleta::create([
                 'codigo_palet' => session('codigo_palet'),
                 'sku' => session('codigo_produto'),
