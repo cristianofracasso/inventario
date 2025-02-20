@@ -121,4 +121,51 @@ function confirmarArea(event) {
         }
     });
 }
+
+// Mensagens de sucesso/erro
+    @if(session('success'))
+        Swal.fire({
+            icon: 'success',
+            title: 'Sucesso!',
+            text: "{{ session('success') }}",
+            timer: 1000,
+            showConfirmButton: false,
+            timerProgressBar: true,
+            didOpen: () => {
+                setTimeout(() => {
+                    document.getElementById('codigo_produto').focus();
+                }, 1600);
+            }
+        });
+    @endif
+
+    @if(session('error') || $errors->any())
+        Swal.fire({
+            icon: 'error',
+            title: 'Atenção!',
+            text: "{{ session('error') ?? $errors->first() }}",
+            showConfirmButton: true,
+            confirmButtonColor: '#3085d6',
+            confirmButtonText: 'OK',
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.getConfirmButton().addEventListener('click', () => {
+                    document.getElementById('codigo_produto').focus();
+                });
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                document.getElementById('codigo_produto').focus();
+            }
+        });
+    @endif
+
+    // Remover alertas padrão do Laravel
+    document.addEventListener('DOMContentLoaded', function() {
+        const alertDiv = document.querySelector('.alert');
+        if (alertDiv) {
+            alertDiv.style.display = 'none';
+        }
+        document.getElementById('codigo_produto').focus();
+    });
 </script>
