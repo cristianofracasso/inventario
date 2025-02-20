@@ -33,7 +33,7 @@
                     </div>
 
                     <div class="mt-4">
-                        <h5>Produtos Coletados nesta Área</h5>
+                        <h5>Produtos Coletados nesta Área -> QTD: {{ $totalItens }}</h5>
                         <table class="table">
                             <thead>
                                 <tr>
@@ -48,7 +48,6 @@
                                     <td>{{ $coleta->sku }}</td>
                                     <td>{{ $coleta->serial }}</td>
                                     <td>
-                                        @if($loop->first)
                                             <form action="{{ route('excluir.produto', $coleta->id) }}" method="POST" class="d-inline">
                                                 @csrf
                                                 @method('DELETE')
@@ -59,7 +58,6 @@
                                                     Excluir Produto
                                                 </button>
                                             </form>
-                                        @endif
                                     </td>
                                 </tr>
                                 @endforeach

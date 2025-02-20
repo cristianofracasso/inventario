@@ -152,7 +152,9 @@ public function __construct()
                         ->where('contagem', $this->recount->first()->contagem)
                         ->get();
 
-        return view('produto', compact('itens'));
+        $totalItens = $itens->count();
+            
+        return view('produto', compact('itens', 'totalItens'));
     }
 
     public function exibirFormularioProduto()
@@ -245,7 +247,8 @@ session(['produto_custo' => $prod_cust]);
             session()->forget('codigo_produto','produto_custo');
             return redirect()->route('produto')->with('success', 'Produto registrado com sucesso!');
         }
-    
+
+            
         // Se tem serial, busca os seriais já coletados
         $seriais = Coleta::where('codigo_palet', session('codigo_palet'))
             ->where('sku', session('codigo_produto'))
@@ -253,8 +256,10 @@ session(['produto_custo' => $prod_cust]);
             ->where('grupo', Auth::user()->grupo)
             ->orderBy('created_at', 'desc')
             ->get();
+
+        $totalSerie = $seriais->count();
     
-        return view('serial-produto', compact('seriais'));
+        return view('serial-produto', compact('seriais', 'totalSerie'));
     }
 
 
@@ -273,11 +278,16 @@ session(['produto_custo' => $prod_cust]);
             ->where('contagem', $this->recount->first()->contagem)
             ->where('grupo', Auth::user()->grupo)
             ->first();
-    
+
         // Se o serial já foi coletado, retorna com erro
         if ($serialColetado) {
             return redirect()->route('produtoserial')->withErrors(['serial' => "Este serial já foi coletado anteriormente na Área $serialColetado->codigo_palet."]);
+        }   
+
+        if ($request->serial === session('codigo_produto') ) {
+            return redirect()->route('produtoserial')->withErrors(['serial' => "Código do produto não pode ser seu serial"]);
         }
+    
     
         // Caso contrário, registra o serial
         Coleta::create([
@@ -298,8 +308,11 @@ session(['produto_custo' => $prod_cust]);
             ->orderBy('created_at', 'desc')
             ->get();
 
+            $totalSerie = $seriais->count();
+
+
         // Retorna à página com os seriais e uma mensagem de sucesso
-        return view('serial-produto', compact('seriais'))
+        return view('serial-produto', compact('seriais', 'totalSerie'))
             ->with('success', 'Serial registrado com sucesso!');
     }
 

@@ -45,7 +45,7 @@
                     </div>
 
                     <div class="mt-4">
-                        <h5>Seriais Coletados</h5>
+                        <h5>Seriais Coletados - > QTD: {{ $totalSerie }}</h5>
                         <table class="table">
                             <thead>
                                 <tr>
@@ -58,7 +58,6 @@
                                 <tr>
                                     <td>{{ $serial->serial }}</td>
                                     <td>
-                                        @if ($loop->first)
                                         <form action="{{ route('excluir.ultimo.serial') }}" method="POST" class="d-inline" id="formExcluirSerial">
                                             @csrf
                                                 <input type="hidden" name="serial_id" value="{{ $serial->id }}">
@@ -66,7 +65,6 @@
                                                 Excluir Serial
                                             </button>
                                         </form>
-                                     @endif
                 </td>
                                 </tr>
                                 @endforeach
