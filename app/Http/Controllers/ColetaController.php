@@ -165,7 +165,9 @@ public function __construct()
                         ->orderBy('created_at', 'desc')
                         ->get();
 
-        return view('produto', compact('itens'));
+                        $totalItens = $itens->count();
+            
+                        return view('produto', compact('itens', 'totalItens'));
     }
 
     
