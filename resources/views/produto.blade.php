@@ -11,33 +11,35 @@
 
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center mb-4">
-                        <form action="{{ route('validar.produto') }}" method="POST" class="flex-grow-1 me-2" id="formProduto">
-                            @csrf
-                            <div class="form-group mb-3">
-                                <label for="codigo_produto">Código do Produto</label>
-                                <input type="text" 
-                                       class="form-control" 
-                                       id="codigo_produto" 
-                                       name="codigo_produto" 
-                                       required 
-                                       autofocus>
-                            </div>
-                        </form>
+    <form action="{{ route('validar.produto') }}" method="POST" class="flex-grow-1 me-2" id="formProduto">
+        @csrf
+        <div class="form-group mb-3">
+            <label for="codigo_produto">Código do Produto</label>
+            <input type="text" 
+                   class="form-control" 
+                   id="codigo_produto" 
+                   name="codigo_produto" 
+                   required 
+                   autofocus>
+        </div>
+    </form>
 
-                        <div class="d-flex">
-                            <!-- Novo Botão de Cadastro de Produtos -->
-                            <a href="{{ route('cadastrar.produto') }}" class="btn btn-primary me-2">
-                                Cadastrar Produto
-                            </a>
-                            
-                            <form action="{{ route('finalizar.coleta') }}" method="POST" class="ms-2" id="formFinalizarColeta">
-                                @csrf
-                                <button type="button" class="btn btn-success" onclick="confirmarFinalizacao()">
-                                    Finalizar Coleta
-                                </button>
-                            </form>
-                        </div>
-                    </div>
+    <!-- Removido o d-flex e ajustado para colocar os botões em bloco -->
+    <div>
+        <!-- Botão de Cadastro de Produtos -->
+        <a href="{{ route('cadastrar.produto') }}" class="btn btn-primary mb-2 w-100">
+            Cadastrar Produto
+        </a>
+        
+        <!-- Botão de Finalizar Coleta -->
+        <form action="{{ route('finalizar.coleta') }}" method="POST" id="formFinalizarColeta">
+            @csrf
+            <button type="button" class="btn btn-success w-100" onclick="confirmarFinalizacao()">
+                Finalizar Coleta
+            </button>
+        </form>
+    </div>
+</div>
 
                     <div class="mt-4">
                         <h5>Produtos Coletados nesta Área -> QTD: {{ $totalItens }}</h5>
