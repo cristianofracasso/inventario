@@ -4,25 +4,61 @@ namespace App\Exports;
 
 use Maatwebsite\Excel\Concerns\FromArray;
 use Maatwebsite\Excel\Concerns\WithHeadings;
+use Maatwebsite\Excel\Concerns\WithTitle;
+use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 
-class RelatorioColetasExport implements FromArray, WithHeadings
+class RelatorioColetasExport implements WithMultipleSheets
 {
-    protected $relatorio;
+    protected $relatorioPorArea;
     protected $totaisPorGrupo;
     protected $grupos;
 
-    public function __construct($relatorio, $totaisPorGrupo, $grupos)
+    public function __construct($relatorioPorArea, $totaisPorGrupo, $grupos)
     {
-        $this->relatorio = $relatorio;
+        $this->relatorioPorArea = $relatorioPorArea;
         $this->totaisPorGrupo = $totaisPorGrupo;
         $this->grupos = $grupos;
     }
 
+    /**
+     * Retorna várias abas (sheets) para o Excel, uma para cada área.
+     */
+    public function sheets(): array
+    {
+        $sheets = [];
+
+        foreach ($this->relatorioPorArea as $area => $dadosArea) {
+            $sheets[] = new RelatorioColetasSheet($area, $dadosArea, $this->totaisPorGrupo, $this->grupos);
+        }
+
+        return $sheets;
+    }
+}
+
+class RelatorioColetasSheet implements FromArray, WithHeadings, WithTitle
+{
+    protected $area;
+    protected $dadosArea;
+    protected $totaisPorGrupo;
+    protected $grupos;
+
+    public function __construct($area, $dadosArea, $totaisPorGrupo, $grupos)
+    {
+        $this->area = $area;
+        $this->dadosArea = $dadosArea;
+        $this->totaisPorGrupo = $totaisPorGrupo;
+        $this->grupos = $grupos;
+    }
+
+    /**
+     * Retorna os dados para a aba atual.
+     */
     public function array(): array
     {
-        // Prepara os dados para exportação
         $dados = [];
-        foreach ($this->relatorio as $dadosSku) {
+
+        // Adiciona os dados dos SKUs
+        foreach ($this->dadosArea as $dadosSku) {
             $linha = ['SKU' => $dadosSku['sku']];
             foreach ($this->grupos as $grupo) {
                 $linha[$grupo] = $dadosSku[$grupo] ?? 0;
@@ -40,13 +76,23 @@ class RelatorioColetasExport implements FromArray, WithHeadings
         return $dados;
     }
 
+    /**
+     * Retorna os cabeçalhos da planilha.
+     */
     public function headings(): array
     {
-        // Define os cabeçalhos da planilha
         $cabecalhos = ['SKU'];
         foreach ($this->grupos as $grupo) {
             $cabecalhos[] = $grupo;
         }
         return $cabecalhos;
+    }
+
+    /**
+     * Define o título da aba.
+     */
+    public function title(): string
+    {
+        return $this->area;
     }
 }

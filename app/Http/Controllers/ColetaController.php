@@ -498,16 +498,21 @@ public function exportarLista($contagem, $grupo)
 {
     // Aplica os filtros
     $query = Coleta::query();
-    if ($contagem) {
+
+    // Filtra por contagem, se não for 'todos'
+    if ($contagem !== 'todos') {
         $query->where('contagem', $contagem);
     }
-    if ($grupo) {
+
+    // Filtra por grupo, se não for 'todos'
+    if ($grupo !== 'todos') {
         $query->where('grupo', $grupo);
     }
 
     // Recupera as coletas filtradas
     $coletas = $query->get();
 
+    // Exporta para Excel
     return Excel::download(new RelatorioListaExport($coletas), 'relatorio_lista.xlsx');
 }
 }
