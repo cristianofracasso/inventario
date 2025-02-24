@@ -188,7 +188,7 @@ public function __construct()
         // Armazena o código do produto na sessão
         session(['codigo_produto' => $codAtivo->codigo_barras]);
 
-        
+
         // Redireciona para a tela de serial
         return redirect()->route('produtov');
     }
@@ -412,6 +412,54 @@ session(['produto_custo' => $prod_cust]);
         session()->forget(['codigo_palet', 'codigo_produto', 'produto_custo']);
         return redirect()->route('index')->with('success', 'Coleta finalizada com sucesso!');
     }
+
+    public function salvar(Request $request)
+{
+    $request->validate([
+        'sku' => 'required|string',
+        'quantidade' => 'required|integer|min:1',
+    ]);
+    
+    $area = session('codigo_palet');
+
+    $produtoExistente2 = Produto::where('codigo_barras', $request->sku)
+                                    ->where('ativo', 1)
+                                    ->first();
+
+
+        if (!$produtoExistente2) {
+            return redirect()->route('produto')->withErrors(['codigo_produto' => 'Código do produto não encontrado.']);
+        }
+
+        $cod_prod = $produtoExistente2->id;
+
+
+        $prod_cust2 = Custos::where('produto_id',$cod_prod = $produtoExistente2->id)
+        ->where('empresa_id', 1)
+        ->where('destino_estoque_id', 9)
+        ->value('valor_custo_medio');
+
+        if($prod_cust2 === NULL){
+            $prod_cust2 = 0.00;
+        }
+    
+    // Loop para inserir de acordo com a quantidade
+    for ($i = 0; $i < $request->quantidade; $i++) {
+        // Gere um serial único ou outro identificador se necessário
+        
+        // Insira no banco de dados
+        DB::table('coletas')->insert([
+            'codigo_palet' => session('codigo_palet'),
+                'sku' => $request->sku,
+                'status' => 'em_andamento',
+                'custo' => session('produto_custo'),
+                'contagem' => $this->recount->first()->contagem,
+                'grupo' => Auth::user()->grupo,
+        ]);
+    }
+    
+    return redirect()->back()->with('success', 'Produto cadastrado com sucesso! Quantidade: ' . $request->quantidade);
+}
 
     public function lista(Request $request)
 {

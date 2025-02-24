@@ -24,12 +24,19 @@
                             </div>
                         </form>
 
-                        <form action="{{ route('finalizar.coleta') }}" method="POST" class="ms-2" id="formFinalizarColeta">
-                            @csrf
-                            <button type="button" class="btn btn-success" onclick="confirmarFinalizacao()">
-                                Finalizar Coleta
-                            </button>
-                        </form>
+                        <div class="d-flex">
+                            <!-- Novo Botão de Cadastro de Produtos -->
+                            <a href="{{ route('cadastrar.produto') }}" class="btn btn-primary me-2">
+                                Cadastrar Produto
+                            </a>
+                            
+                            <form action="{{ route('finalizar.coleta') }}" method="POST" class="ms-2" id="formFinalizarColeta">
+                                @csrf
+                                <button type="button" class="btn btn-success" onclick="confirmarFinalizacao()">
+                                    Finalizar Coleta
+                                </button>
+                            </form>
+                        </div>
                     </div>
 
                     <div class="mt-4">
@@ -65,6 +72,36 @@
                         </table>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Cadastro de Produto -->
+<div class="modal fade" id="cadastrarProdutoModal" tabindex="-1" aria-labelledby="cadastrarProdutoModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="cadastrarProdutoModalLabel">Cadastrar Novo Produto</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form action="{{ route('salvar.produto') }}" method="POST" id="formCadastrarProduto">
+                    @csrf
+                    <div class="form-group mb-3">
+                        <label for="sku">Código do Produto</label>
+                        <input type="text" class="form-control" id="sku" name="sku" required>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="quantidade">Quantidade</label>
+                        <input type="number" class="form-control" id="quantidade" name="quantidade" required min="1" value="1">
+                    </div>
+                  
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="salvarProduto()">Salvar Produto</button>
             </div>
         </div>
     </div>
@@ -107,6 +144,36 @@
         }).then((result) => {
             if (result.isConfirmed) {
                 button.closest('form').submit();
+            }
+        });
+    }
+
+    // Função para abrir modal de cadastro ao clicar no botão
+    document.addEventListener('DOMContentLoaded', function() {
+        const cadastrarBtn = document.querySelector('a[href="{{ route("cadastrar.produto") }}"]');
+        if (cadastrarBtn) {
+            cadastrarBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                const cadastrarModal = new bootstrap.Modal(document.getElementById('cadastrarProdutoModal'));
+                cadastrarModal.show();
+            });
+        }
+    });
+
+    // Função para salvar o produto
+    function salvarProduto() {
+        Swal.fire({
+            title: 'Confirmar cadastro',
+            text: "Deseja cadastrar este produto?",
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#28a745',
+            cancelButtonColor: '#dc3545',
+            confirmButtonText: 'Sim, cadastrar!',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                document.getElementById('formCadastrarProduto').submit();
             }
         });
     }
@@ -185,8 +252,6 @@
     // Configurar o formulário de produto
     const formProduto = document.getElementById('formProduto');
     const inputProduto = document.getElementById('codigo_produto');
-
-    // Removi o evento submit do formulário que estava desabilitando muito cedo
 
     // Auto-submit ao pressionar Enter
     inputProduto.addEventListener('keypress', function(e) {
