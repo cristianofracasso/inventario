@@ -183,6 +183,8 @@ public function __construct()
 
         $codAtivo = Produto::where('codigo_barras', $request->codigo_produto)
                             ->where('ativo', 1)
+                            ->where('excluido', 0)
+                            ->where('kit', 0)
                             ->first();
 
         // Armazena o código do produto na sessão
@@ -210,6 +212,8 @@ public function __construct()
        // Verifica se o produto existe
        $produtoExistente = Produto::where('codigo_barras', session('codigo_produto'))
                                     ->where('ativo', 1)
+                                    ->where('excluido', 0)
+                                    ->where('kit', 0)
                                     ->first();
 
 
@@ -239,6 +243,8 @@ session(['produto_custo' => $prod_cust]);
         // Verifica se o produto tem serial
         $controlaserie = Produto::where('codigo_barras', session('codigo_produto'))
                                         ->where('ativo', 1)
+                                        ->where('excluido', 0)
+                                        ->where('kit', 0)
                                         ->first();
 
             if ($controlaserie->controla_numero_serie !== '1') {
@@ -424,6 +430,8 @@ session(['produto_custo' => $prod_cust]);
 
     $produtoExistente2 = Produto::where('codigo_barras', $request->sku)
                                     ->where('ativo', 1)
+                                    ->where('excluido', 0)
+                                    ->where('kit', 0)
                                     ->first();
 
 
@@ -431,10 +439,10 @@ session(['produto_custo' => $prod_cust]);
             return redirect()->route('produto')->withErrors(['codigo_produto' => 'Código do produto não encontrado.']);
         }
 
-        $cod_prod = $produtoExistente2->id;
+        $cod_prod2 = $produtoExistente2->id;
 
 
-        $prod_cust2 = Custos::where('produto_id',$cod_prod = $produtoExistente2->id)
+        $prod_cust2 = Custos::where('produto_id',$cod_prod2 = $produtoExistente2->id)
         ->where('empresa_id', 1)
         ->where('destino_estoque_id', 9)
         ->value('valor_custo_medio');
@@ -442,13 +450,14 @@ session(['produto_custo' => $prod_cust]);
         if($prod_cust2 === NULL){
             $prod_cust2 = 0.00;
         }
-    
+        session(['produto_custo' => $prod_cust2]);
+
     // Loop para inserir de acordo com a quantidade
     for ($i = 0; $i < $request->quantidade; $i++) {
         // Gere um serial único ou outro identificador se necessário
         
         // Insira no banco de dados
-        DB::table('coletas')->insert([
+        Coleta::create([
             'codigo_palet' => session('codigo_palet'),
                 'sku' => $request->sku,
                 'status' => 'em_andamento',
@@ -457,7 +466,8 @@ session(['produto_custo' => $prod_cust]);
                 'grupo' => Auth::user()->grupo,
         ]);
     }
-    
+    session()->forget(['codigo_produto', 'produto_custo']);
+
     return redirect()->back()->with('success', 'Produto cadastrado com sucesso! Quantidade: ' . $request->quantidade);
 }
 
