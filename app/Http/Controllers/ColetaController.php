@@ -188,10 +188,10 @@ public function __construct()
                             ->first();
 
                   // Verifica se o código do produto está na sessão
-        if (!session('codigo_produto')) {
+        if (!$codAtivo) {
             return redirect()->route('produto')->with('error', 'Código do produto não encontrado.');
         }
-        
+
         // Armazena o código do produto na sessão
         session(['codigo_produto' => $codAtivo->codigo_barras]);
 
