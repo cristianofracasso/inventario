@@ -57,5 +57,10 @@ Route::get('/relatorio/exportar/{contagem}', [ProdutoController::class, 'exporta
 Route::get('/exportar-lista/{contagem}/{grupo}', [ColetaController::class, 'exportarLista'])
     ->name('relatorio.exportar.lista');
 
+    // Adicione estas rotas no seu arquivo routes/web.php
+// Adicione estas rotas no seu arquivo routes/web.php
+Route::get('/divergencias', [App\Http\Controllers\ProdutoController::class, 'divergencias'])->name('divergencias');
+Route::get('/divergencias/exportar/{contagem}', [App\Http\Controllers\ProdutoController::class, 'exportarExcelDivergencias'])->name('divergencias.exportar');
+
 // Rotas de autenticação geradas pelo Laravel (como register, password reset, etc.)
 require __DIR__.'/auth.php';
