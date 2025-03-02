@@ -195,7 +195,7 @@ public function __construct()
         // Armazena o código do produto na sessão
         session(['codigo_produto' => $codAtivo->codigo_barras]);
 
-
+//comentar para teste
         // Redireciona para a tela de serial
         return redirect()->route('produtov');
     }
