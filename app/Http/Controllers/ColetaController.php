@@ -239,6 +239,8 @@ public function __construct()
         }
             
 session(['produto_custo' => $prod_cust]);
+session(['id_produto' => $cod_prod]);
+
 
         return redirect()->route('produtoserial');
 
@@ -259,10 +261,11 @@ session(['produto_custo' => $prod_cust]);
                 'status' => 'em_andamento',
                 'custo' => session('produto_custo'),
                 'contagem' => $this->recount->first()->contagem,
+                'cod_prod' => session('produto_custo'),
                 'grupo' => Auth::user()->grupo,
             ]);
     
-            session()->forget('codigo_produto','produto_custo');
+            session()->forget('codigo_produto','produto_custo', 'id_produto');
             return redirect()->route('produto')->with('success', 'Produto registrado com sucesso!');
         }
 
@@ -313,6 +316,7 @@ session(['produto_custo' => $prod_cust]);
             'sku' => session('codigo_produto'),
             'serial' => $request->serial,
             'custo' => session('produto_custo'),
+            'cod_prod' => session('id_produto'),
             'status' => 'em_andamento',
             'contagem' => $this->recount->first()->contagem,
             'grupo' => Auth::user()->grupo,
@@ -380,7 +384,7 @@ session(['produto_custo' => $prod_cust]);
 
     public function encerrarProduto()
 {
-    session()->forget(['codigo_produto', 'produto_custo']);
+    session()->forget(['codigo_produto', 'produto_custo', 'id_produto']);
     return redirect()->route('produto')->with('success', 'Produto encerrado com sucesso!');
 }
 
@@ -420,7 +424,7 @@ session(['produto_custo' => $prod_cust]);
                                 'status'=> 'finalizada']);
             }
         
-        session()->forget(['codigo_palet', 'codigo_produto', 'produto_custo']);
+        session()->forget(['codigo_palet', 'codigo_produto', 'produto_custo', 'id_produto']);
         return redirect()->route('index')->with('success', 'Coleta finalizada com sucesso!');
     }
 
@@ -467,11 +471,12 @@ session(['produto_custo' => $prod_cust]);
                 'sku' => $request->sku,
                 'status' => 'em_andamento',
                 'custo' => session('produto_custo'),
+                'cod_prod' => session('id_produto'),
                 'contagem' => $this->recount->first()->contagem,
                 'grupo' => Auth::user()->grupo,
         ]);
     }
-    session()->forget(['codigo_produto', 'produto_custo']);
+    session()->forget(['codigo_produto', 'produto_custo', 'id_produto']);
 
     return redirect()->back()->with('success', 'Produto cadastrado com sucesso! Quantidade: ' . $request->quantidade);
 }
