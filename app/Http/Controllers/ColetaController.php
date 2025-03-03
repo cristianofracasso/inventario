@@ -262,7 +262,7 @@ session(['produto_custo' => $prod_cust]);
                 'status' => 'em_andamento',
                 'custo' => session('produto_custo'),
                 'contagem' => $this->recount->first()->contagem,
-                'cod_prod' => session('produto_custo'),
+                'cod_prod' => session('id_produto'),
                 'grupo' => Auth::user()->grupo,
             ]);
     
