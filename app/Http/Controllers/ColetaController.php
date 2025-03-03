@@ -194,7 +194,7 @@ public function __construct()
 
         // Armazena o código do produto na sessão
         session(['codigo_produto' => $codAtivo->codigo_barras]);
-        session(['id_produto' => $codAtivo]);
+        session(['id_produto' => $codAtivo->id]);
 
 //comentar para teste
         // Redireciona para a tela de serial
